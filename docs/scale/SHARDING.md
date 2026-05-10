@@ -19,17 +19,71 @@ Avec Ed25519 verifications, validations cryptographiques et fsync WAL, on plafon
 
 **Étape 1 — `commit_batch`** : déjà implémenté dans [event_store/store.py:371](../../event_store/store.py#L371). Encourager les émetteurs à grouper. Pas de changement de schéma, gain immédiat.
 
-**Étape 2 (si besoin) — sharding par bucket** : N chaînes parallèles (N = 4 ou 8), bucket = `hash(issuer_id) % N`. Un événement périodique `shard.sealed{shard_id, head_hash, ts}` est commité dans une **chaîne maîtresse** pour offrir un point d'ordre global.
+**Étape 2 (si besoin) — sharding par bucket** : N chaînes parallèles (N = 4 ou 8), bucket = `hash(issuer_id) % N`. Un événement périodique `shard.sealed{shard_id, head_hash, ts}` est commité dans une **chaîne maîtresse** qui sert d'**ancrage temporel cryptographique**.
+
+## Architecture en deux couches
 
 ```mermaid
 flowchart TB
-    I1[issuer alice<br/>hash=0] --> S0[(shard 0)]
-    I2[issuer bob<br/>hash=2] --> S2_db[(shard 2)]
-    I3[issuer carol<br/>hash=1] --> S1[(shard 1)]
-    S0 -.tête.-> M[(chaîne maîtresse)]
-    S1 -.tête.-> M
-    S2_db -.tête.-> M
-    M --> Seal[shard.sealed<br/>périodique]
+    subgraph Couche1[Couche 1 — données]
+        S0[(shard 0<br/>events propres<br/>verify_integrity local)]
+        S1[(shard 1<br/>events propres<br/>verify_integrity local)]
+        SN[(shard N-1<br/>events propres<br/>verify_integrity local)]
+    end
+    subgraph Couche2[Couche 2 — ancrage]
+        M[(chaîne maîtresse<br/>uniquement des shard.sealed<br/>verify_integrity local)]
+    end
+    S0 -.head_hash périodique.-> M
+    S1 -.head_hash périodique.-> M
+    SN -.head_hash périodique.-> M
+    P[(table peers<br/>partagée entre toutes les chaînes)]
+    P -.- S0
+    P -.- S1
+    P -.- SN
+    P -.- M
+```
+
+- **Couche 1** : chaque shard est un `SQLEventStore` autonome — son fichier, sa chaîne, son audit local. Il ne sait rien des autres.
+- **Couche 2** : la chaîne maîtresse est *aussi* un `SQLEventStore`, mais spécialisée — elle ne contient **que** des événements `shard.sealed{shard_id, head_hash, ts}`. C'est un **registre d'ancrages**, pas un log unifié.
+- **Pas d'eventstore « global »** au sens d'un fichier qui contiendrait l'union des events. Pour répondre à *« quels events sont arrivés sur tout le système ? »*, il faut lire les N shards et fusionner par HLC.
+
+## À quoi sert la chaîne maîtresse ?
+
+Sans elle, chaque shard est auto-cohérent **mais pas auto-protégé contre une réécriture totale**. Trois attaques que `verify_integrity()` local ne peut pas détecter :
+
+| Attaque | Sans master | Avec master |
+|---|---|---|
+| **Troncature** : drop des K derniers events du shard ; ce qui reste vérifie | Indétectable | Le dernier `shard.sealed` reférence un `head_hash` qui n'existe plus côté shard → **détecté** |
+| **Roll-back** : remplacer le `.db` par une version antérieure (sauvegarde, copie) | Indétectable | Le `head_hash` ancré dans la maîtresse est postérieur au head actuel → **détecté** |
+| **Histoire alternative** : forger un nouveau `.db` depuis genesis avec un quorum complice (pairs compromis) | Audit local OK | Aucun `shard.sealed` ne référence le `head_hash` de cette histoire alternative → **détecté** |
+
+C'est exactement le rôle d'un **service de timestamping cryptographique** : la maîtresse certifie *« à l'instant T, le shard k avait pour tête H »*. Une fois cet ancrage signé par le quorum et engagé, le shard ne peut plus s'écarter de cette trajectoire sans être démasqué.
+
+Analogie : pour une blockchain publique, le rôle est joué par la racine de Merkle ancrée sur la chaîne ; ici, c'est le `shard.sealed` ancré sur la maîtresse.
+
+## Procédure d'audit complet
+
+Trois étapes, dans cet ordre :
+
+1. **Audit local de chaque shard** — `shard.verify_integrity()` sur chacun (parallélisable).
+2. **Audit local de la maîtresse** — `master.verify_integrity()`.
+3. **Cross-check** — pour chaque `shard.sealed{shard_id=k, head_hash=H, ts=T}` dans la maîtresse, ouvrir le shard *k*, retrouver l'event de `row_hash=H`, et vérifier qu'il existe et que sa position dans la chaîne est cohérente avec T (HLC ≤ T). Si non → falsification détectée.
+
+```python
+def verify_global(sharded: ShardedEventStore) -> None:
+    for shard in sharded.shards:
+        shard.verify_integrity()
+    sharded.master.verify_integrity()
+    for ev in sharded.master.read_all():
+        if ev.event_type != "shard.sealed":
+            continue
+        shard_id = ev.payload["shard_id"]
+        head_hash = ev.payload["head_hash"]
+        if not sharded.shards[shard_id].has_row_hash(head_hash):
+            raise IntegrityError(
+                f"shard {shard_id}: head_hash {head_hash[:12]} ancré "
+                f"dans la maîtresse à {ev.hlc_physical_ms} introuvable"
+            )
 ```
 
 ## Schéma proposé
@@ -62,11 +116,14 @@ class ShardedEventStore:
 
 - **Étape 1** : utilisation de `commit_batch()` côté client, déjà en place.
 - **Étape 2** : nouveau module `event_store/sharded.py` qui orchestre N `SQLEventStore`. Le code des stores individuels est inchangé.
-- **Audit** : `verify_integrity()` tourne sur chaque shard indépendamment. Un audit cross-shard rejoue la chaîne maîtresse pour vérifier que chaque `shard.sealed` correspond à la tête réelle du shard à ce moment.
+- **Audit** : pas de commande unique côté core — un orchestrateur enchaîne les 3 étapes décrites ci-dessus (`verify_global` dans le snippet). Reste à fournir.
+- **Helper requis** : `SQLEventStore.has_row_hash(h)` ou `read_by_row_hash(h)` pour le cross-check. Trivial à ajouter (index existe déjà sur `row_hash`).
 
 ## Limites / risques
 
-- **Pas d'order total entre shards** : si l'application a besoin de sérialiser strictement deux events de pairs différents, le sharding ne convient pas. Soit garder un seul shard, soit gérer la causalité via `correlation_id` ([CORRELATION.md](../../CORRELATION.md)).
+- **Pas de log unifié** : aucune base ne contient l'union des events. Une requête *« tout ce qui est arrivé »* doit lire les N shards et fusionner par HLC. La maîtresse n'est pas un substitut — elle ne contient que des seals.
+- **Pas d'order total entre shards** : si l'application a besoin de sérialiser strictement deux events de pairs différents, le sharding ne convient pas. Soit garder un seul shard, soit gérer la causalité via `correlation_id` ([CORRELATION.md](../../CORRELATION.md)). Les seals offrent un ordre partiel : tout event d'un shard antérieur à un seal est antérieur à tout event de la maîtresse postérieur à ce seal.
+- **Fenêtre d'exposition entre deux seals** : entre deux `shard.sealed`, les events fraîchement commités sur un shard ne sont **pas encore ancrés** dans la maîtresse — donc une attaque rapide reste indétectable jusqu'au prochain seal. Période de seal courte = fenêtre étroite, mais coût en events maîtresse. Compromis typique : seal toutes les 1–10 secondes.
 - **Rebalancing** : si on change N (4 → 8), les anciens events restent dans leur ancien shard ; les nouveaux vont dans la nouvelle distribution. Pas de migration des données — on accepte la fragmentation.
 - **Quorum cross-shard** : si les pairs sont eux-mêmes shardés (pair X attestant uniquement les events du shard 0), un attaquant peut concentrer son attaque sur un shard avec peu de pairs. Garder les pairs **partagés** entre tous les shards.
 - **Backup et restore** : multipliés par N. Tooling à adapter ([CLI.md](../operations/CLI.md)).
