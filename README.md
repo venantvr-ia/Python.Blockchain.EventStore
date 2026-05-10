@@ -86,6 +86,8 @@ flowchart TB
 | [USAGE.md](USAGE.md) | **Guide pratique** : bootstrap, déploiement multi-clients, opérations, checklist J+1 |
 | [CLAUDE.md](CLAUDE.md) | Architecture, invariants, points de vigilance pour les contributions |
 | [FLOW.md](FLOW.md) | Diagrammes verticaux du flux nominal et de l'audit d'intégrité |
+| [CORRELATION.md](CORRELATION.md) | Note de conception : groupement d'événements (correlation_id, sentinelles, process mining) |
+| [docs/](docs/README.md) | **Notes de conception** par sujet : audit incrémental, RGPD, sharding, forks, observabilité… (17 docs) |
 | [demo.py](demo.py) | Démo de bout en bout incluant des tentatives d'attaque |
 | [tests/test_event_store.py](tests/test_event_store.py) | Suite pytest commentée en français |
 
