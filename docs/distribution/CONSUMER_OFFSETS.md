@@ -96,3 +96,11 @@ class Consumer:
 - **Détection de fork** ([FORKS.md](FORKS.md)) : si la chaîne fork et que le consommateur reprend après le fork, le `content_hash` à `row_id` peut différer. Politique : alerter et stopper plutôt que continuer aveuglément.
 - **Compaction / archivage** ([COLD_ARCHIVE.md](../operations/COLD_ARCHIVE.md)) : si les events anciens sont déplacés dans une archive, `read_after(low_id)` doit savoir aller chercher dans l'archive. Sinon, l'offset devient invalide quand un event archivé est demandé.
 - **Performance** : un consommateur lent peut accumuler du retard. Métrique à surveiller : `head.id - consumer.last_row_id`.
+
+## Voir aussi
+
+- [FORKS.md](FORKS.md) — politique en cas de fork
+- [COLD_ARCHIVE.md](../operations/COLD_ARCHIVE.md) — replay traversant les archives
+- [SNAPSHOTS.md](../data/SNAPSHOTS.md) — démarrage depuis un snapshot pour éviter le replay total
+- [WATERMARKS.md](WATERMARKS.md) — offset borné par le watermark
+- [SHARDING.md](../scale/SHARDING.md) — un offset par shard

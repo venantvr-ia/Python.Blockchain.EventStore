@@ -101,3 +101,10 @@ def merge_fork(winner: SQLEventStore, loser: SQLEventStore, fork: ForkInfo):
 - **Determinisme du tie-break** : tous les pairs doivent appliquer la même règle. Une règle ambiguë génère des merges divergents → fork récursif. Tester unitairement.
 - **Coût** : une partition longue avec beaucoup d'events des deux côtés → merge coûteux et histoire compliquée à auditer. Préférer une architecture qui évite les partitions (CP) si la durée acceptable d'indisponibilité le permet.
 - **Cas dégénéré** : trois branches simultanées. Le mécanisme se généralise mais devient cauchemardesque. En pratique, prévoir un *single primary* qui tranche.
+
+## Voir aussi
+
+- [WATERMARKS.md](WATERMARKS.md) — pré-requis de réplication pour comparer les têtes
+- [CONSUMER_OFFSETS.md](CONSUMER_OFFSETS.md) — politique consommateur en cas de fork détecté
+- [OBSERVABILITY.md](../operations/OBSERVABILITY.md) — alerter sur détection de fork
+- [CLAUDE.md](../../CLAUDE.md) — invariant 1 : la signature porte sur `content_hash`

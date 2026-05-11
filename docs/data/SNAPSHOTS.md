@@ -93,3 +93,10 @@ def load_with_snapshot(consumer, aggregate_id):
 - **Déterminisme** : pour que `state_hash` soit auditable, la projection (`apply(state, event)`) **doit être déterministe** — pas d'horloge, pas d'aléatoire, pas de side-effect. Un test dédié à cela.
 - **Snapshot frauduleux** : un quorum compromis peut signer un snapshot qui ne correspond pas à l'état réel. Mitigation : un consommateur peut **toujours** ignorer les snapshots et rejouer tout (mode debug / audit).
 - **Privacy & PII** : le state peut contenir des PII. Si crypto-shredding est en place ([GDPR_CRYPTO_SHREDDING.md](GDPR_CRYPTO_SHREDDING.md)), le snapshot doit aussi être chiffré et participer à l'effacement.
+
+## Voir aussi
+
+- [EVENT_VERSIONING.md](EVENT_VERSIONING.md) — versionner aussi le format du state
+- [GDPR_CRYPTO_SHREDDING.md](GDPR_CRYPTO_SHREDDING.md) — l'état projeté doit suivre l'effacement
+- [CONSUMER_OFFSETS.md](../distribution/CONSUMER_OFFSETS.md) — un consommateur démarre depuis un snapshot
+- [COLD_ARCHIVE.md](../operations/COLD_ARCHIVE.md) — un snapshot consolidé permet d'archiver plus agressivement

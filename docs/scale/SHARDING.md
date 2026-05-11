@@ -128,3 +128,11 @@ class ShardedEventStore:
 - **Quorum cross-shard** : si les pairs sont eux-mêmes shardés (pair X attestant uniquement les events du shard 0), un attaquant peut concentrer son attaque sur un shard avec peu de pairs. Garder les pairs **partagés** entre tous les shards.
 - **Backup et restore** : multipliés par N. Tooling à adapter ([CLI.md](../operations/CLI.md)).
 - **Coût SQLite** : N fichiers WAL ouverts simultanément, N fsync par cycle de seal. Si N > 8, considérer un vrai SGBD (PostgreSQL avec table partitionnée).
+
+## Voir aussi
+
+- [CORRELATION.md](../../CORRELATION.md) — causalité cross-shard via `correlation_id`
+- [CONSUMER_OFFSETS.md](../distribution/CONSUMER_OFFSETS.md) — offset par shard
+- [INCREMENTAL_AUDIT.md](../security/INCREMENTAL_AUDIT.md) — audit incrémental par shard
+- [OBSERVABILITY.md](../operations/OBSERVABILITY.md) — métriques par shard
+- [CLI.md](../operations/CLI.md) — backup/restore × N

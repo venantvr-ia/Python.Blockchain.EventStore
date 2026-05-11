@@ -102,3 +102,11 @@ def archive_range(store, id_min, id_max, archive_path):
 - **Format pérenne** : Parquet et JSON-Lines sont raisonnables sur 10 ans, douteux sur 50. Pour les obligations légales > 30 ans, prévoir une re-encapsulation périodique avec re-signature.
 - **Liens cross-archives** : un consommateur ([CONSUMER_OFFSETS.md](../distribution/CONSUMER_OFFSETS.md)) qui veut rejouer depuis un id ancien doit traverser plusieurs archives. Indexer les archives (`archive_index.csv`) pour retrouver rapidement.
 - **Cohérence avec snapshots** ([../data/SNAPSHOTS.md](../data/SNAPSHOTS.md)) : un consommateur qui repart d'un snapshot postérieur à toutes les archives n'a pas besoin de remonter aux archives. Ne archive que ce qui est avant le dernier snapshot consolidé.
+
+## Voir aussi
+
+- [SHARDING.md](../scale/SHARDING.md) — sharding temporel comme alternative
+- [CONSUMER_OFFSETS.md](../distribution/CONSUMER_OFFSETS.md) — replay cross-archive
+- [SNAPSHOTS.md](../data/SNAPSHOTS.md) — n'archiver qu'en aval du dernier snapshot
+- [INCREMENTAL_AUDIT.md](../security/INCREMENTAL_AUDIT.md) — l'audit doit consulter les archives
+- [GDPR_CRYPTO_SHREDDING.md](../data/GDPR_CRYPTO_SHREDDING.md) — politique d'effacement étendue aux archives

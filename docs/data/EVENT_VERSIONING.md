@@ -91,3 +91,10 @@ def upcast(event_type: str, payload: dict) -> dict:
 - **Drift de schéma** : sans validation centralisée, un émetteur peut produire un v2 mal formé. Mitigation : validation côté `Client.prepare` (JSON Schema en amont), refus à l'émission.
 - **Versioning du `event_type` lui-même** : renommer `order.placed` en `purchase.placed` n'est pas un upcast, c'est un nouveau type. Conserver l'ancien à vie dans les handlers historiques.
 - **Compatibilité avec hash format** : `event_version` n'a rien à voir avec `hash_format_version` ([HASH_FORMAT_VERSIONING.md](../security/HASH_FORMAT_VERSIONING.md)) ; le premier concerne la sémantique métier, le second la dérivation cryptographique.
+
+## Voir aussi
+
+- [HASH_FORMAT_VERSIONING.md](../security/HASH_FORMAT_VERSIONING.md) — versioning cryptographique, distinct
+- [SNAPSHOTS.md](SNAPSHOTS.md) — `snapshot_format_version` suit la même logique
+- [CLI.md](../operations/CLI.md) — `evstore inspect` doit appeler les upcasters
+- [CHAOS_TESTING.md](../operations/CHAOS_TESTING.md) — propriété d'idempotence des upcasters

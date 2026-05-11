@@ -117,3 +117,11 @@ def commit(self, prepared):
 - **Coût des traces** : OpenTelemetry échantillonné à 1 % suffit pour le diagnostic ; 100 % pour les chaînes critiques.
 - **Faux positifs** : les alertes sur latence faussent en bas trafic. Combiner avec un seuil minimum (ex. `rate() > X AND quantile > Y`).
 - **Confiance dans les métriques** : un attaquant qui contrôle un pair peut taire ses propres métriques. Une fraction de la télémétrie doit venir d'un observateur indépendant (par ex. proxy en front).
+
+## Voir aussi
+
+- [WATERMARKS.md](../distribution/WATERMARKS.md) — métrique `peer_last_seen`
+- [KEY_ROTATION.md](../security/KEY_ROTATION.md) — détection d'anomalie post-compromise
+- [INCREMENTAL_AUDIT.md](../security/INCREMENTAL_AUDIT.md) — alerte critique sur falsification
+- [BACKPRESSURE.md](../scale/BACKPRESSURE.md) — métriques de quota
+- [FORKS.md](../distribution/FORKS.md) — alerte fork détecté

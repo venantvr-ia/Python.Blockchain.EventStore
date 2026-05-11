@@ -87,3 +87,10 @@ def compute_watermark(events) -> int:
 - **Heartbeats contre-productifs** : si le pair est complètement isolé, ses heartbeats ne traversent pas le quorum et ne sont jamais commités → invisible côté consommateur. Mitigation : monitoring externe ([OBSERVABILITY.md](../operations/OBSERVABILITY.md)).
 - **HLC vs wall clock** : le watermark est en HLC `physical_ms`, qui peut diverger légèrement du temps réel. Pour des fenêtres temporelles strictes (par ex. comptable), préférer `created_at` (wall clock) avec ses propres compromis.
 - **Interaction avec correlation_id** ([CORRELATION.md](../../CORRELATION.md)) : le watermark dit *« plus rien d'antérieur n'arrivera »* mais ne dit pas *« le groupe X est complet »*. Les deux mécanismes sont complémentaires.
+
+## Voir aussi
+
+- [CORRELATION.md](../../CORRELATION.md) — mécanisme complémentaire de groupement
+- [OBSERVABILITY.md](../operations/OBSERVABILITY.md) — alerte sur pair silencieux
+- [CONSUMER_OFFSETS.md](CONSUMER_OFFSETS.md) — offset borné par le watermark
+- [FORKS.md](FORKS.md) — watermark stallé peut révéler une partition

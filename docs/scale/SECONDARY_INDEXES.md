@@ -100,3 +100,11 @@ class BalanceProjector:
 - **Index sur payload** : les colonnes dérivées (extraire `account_id` du JSON dans une colonne indexée) sont **plus performantes** mais introduisent un couplage : changer la forme du payload casse l'index. Préférer les read models pour les besoins évolutifs.
 - **Sharding** ([SHARDING.md](SHARDING.md)) : un projector consomme N shards en parallèle. La cohérence cross-shard nécessite un point d'ancrage (chaîne maîtresse).
 - **Confidentialité** : un read model en clair contourne l'envelope encryption ([PAYLOAD_ENCRYPTION.md](../security/PAYLOAD_ENCRYPTION.md)). Le projector doit déchiffrer avec autorisation, et le read model doit avoir le même niveau de protection que les données projetées.
+
+## Voir aussi
+
+- [SHARDING.md](SHARDING.md) — projector consomme N shards
+- [PAYLOAD_ENCRYPTION.md](../security/PAYLOAD_ENCRYPTION.md) — read model en clair contourne l'encryption
+- [GDPR_CRYPTO_SHREDDING.md](../data/GDPR_CRYPTO_SHREDDING.md) — read models doivent participer à l'effacement
+- [CONSUMER_OFFSETS.md](../distribution/CONSUMER_OFFSETS.md) — chaque projector a son offset
+- [WATERMARKS.md](../distribution/WATERMARKS.md) — read model attend un watermark stable

@@ -76,3 +76,10 @@ client.prepare(
 - **Logs et backups** : crypto-shredding ne couvre que la chaîne. Les logs applicatifs, les backups SQL, les exports analytiques peuvent contenir le clair — politique d'effacement à étendre à tous les chemins.
 - **Auditabilité historique partielle** : après shredding, on ne peut plus prouver le contenu exact du payload, seulement qu'il a été commité (hash + sigs). Garder l'événement `gdpr.shredded` pour documenter l'effacement.
 - **Quantum** : si un attaquant a copié les ciphertexts et qu'AES-256 est cassé un jour, le shredding ne protège plus. Pour les vrais long-termes (> 30 ans), considérer de la cryptographie post-quantique.
+
+## Voir aussi
+
+- [PAYLOAD_ENCRYPTION.md](../security/PAYLOAD_ENCRYPTION.md) — base technique du shredding
+- [SECONDARY_INDEXES.md](../scale/SECONDARY_INDEXES.md) — les read models doivent participer à l'effacement
+- [COLD_ARCHIVE.md](../operations/COLD_ARCHIVE.md) — les archives contiennent des ciphertexts à oublier
+- [OBSERVABILITY.md](../operations/OBSERVABILITY.md) — vigilance sur les PII dans les logs

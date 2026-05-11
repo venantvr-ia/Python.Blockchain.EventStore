@@ -179,3 +179,9 @@ flowchart TB
 - **Long terme** : auto-tag à l'émission, **seulement si** un consommateur temps réel le justifie, et **seulement si** l'historique offline a produit un modèle dont on a mesuré la fiabilité.
 
 L'ordre de ces étapes n'est pas une coquetterie : chaque palier valide les hypothèses du suivant.
+
+## Voir aussi
+
+- [docs/distribution/WATERMARKS.md](docs/distribution/WATERMARKS.md) — mécanisme complémentaire (complétude temporelle)
+- [docs/data/EVENT_VERSIONING.md](docs/data/EVENT_VERSIONING.md) — versionner les payloads `group.open` / `group.close`
+- [docs/operations/OBSERVABILITY.md](docs/operations/OBSERVABILITY.md) — détecter des groupes anormaux par métriques

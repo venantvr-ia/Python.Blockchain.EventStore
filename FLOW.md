@@ -58,3 +58,9 @@ flowchart TB
     PeerQuorum -- oui --> Iter
     Iter -- fin de la table --> OK([Audit OK])
 ```
+
+## Voir aussi
+
+- [CLAUDE.md](CLAUDE.md) — architecture et invariants détaillés
+- [docs/security/INCREMENTAL_AUDIT.md](docs/security/INCREMENTAL_AUDIT.md) — variante incrémentale du flux d'audit
+- [docs/operations/OBSERVABILITY.md](docs/operations/OBSERVABILITY.md) — métriques aux moments clés du flux

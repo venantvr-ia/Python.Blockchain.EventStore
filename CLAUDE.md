@@ -123,3 +123,10 @@ PYTHONPATH=. pytest tests/test_event_store.py::nom_du_test -q
 - **Toute nouvelle vérification doit être exécutée à la fois côté `Client.attest` et côté `SQLEventStore._insert_one`**. Le pair est la première ligne de défense ; le store est la dernière.
 - **`hash_depth` et `peer_quorum` sont configurés à l'ouverture du store** ; les changer en cours de route casserait la re-dérivation des hashs lors de l'audit.
 - Les tests doivent couvrir au moins : émission nominale, rejet d'émetteur inconnu, rejet de signature forgée, rejet de quorum insuffisant, détection de falsification par `verify_integrity()`.
+
+## Voir aussi
+
+- [USAGE.md](USAGE.md) — guide opérationnel pas-à-pas
+- [FLOW.md](FLOW.md) — diagrammes verticaux des flux nominal et d'audit
+- [CORRELATION.md](CORRELATION.md) — note de conception sur le groupement d'événements
+- [docs/README.md](docs/README.md) — index des 17 notes de conception thématiques

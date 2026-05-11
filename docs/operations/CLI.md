@@ -113,3 +113,10 @@ evstore = "event_store.cli.main:app"
 - **Dérive avec l'API** : si une méthode change de signature, la CLI casse. Tests d'intégration smoke-tests à chaque PR.
 - **Localisation** : messages d'erreur en anglais ou en français ? Cohérence avec les autres composants — actuellement la doc est en français mais le code en anglais. Choix politique.
 - **Sortie machine-friendly** : prévoir `--json` sur les commandes de lecture pour piper vers `jq`, monitoring, etc.
+
+## Voir aussi
+
+- [INCREMENTAL_AUDIT.md](../security/INCREMENTAL_AUDIT.md) — sous-commande `audit`
+- [OBSERVABILITY.md](OBSERVABILITY.md) — `stats` et `inspect` complémentaires
+- [COLD_ARCHIVE.md](COLD_ARCHIVE.md) — `export` / `import` d'archives
+- [CHAOS_TESTING.md](CHAOS_TESTING.md) — tests CLI via `CliRunner`

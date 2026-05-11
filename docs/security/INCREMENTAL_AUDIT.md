@@ -74,3 +74,11 @@ Un événement `audit.checkpoint` :
 - **Faux sentiment de sécurité** : un attaquant qui contrôle ≥ `peer_quorum` peers peut faire passer un faux checkpoint. Mitigation : avoir un *quorum d'auditeurs* distinct du quorum d'émetteurs (rôles séparés dans `peers`).
 - **Échantillonnage** : ne détecte une falsification rare qu'avec une probabilité, pas une certitude. À combiner systématiquement avec les checkpoints.
 - **Granularité de N** : N trop petit → pollue la chaîne d'événements `audit.checkpoint` ; trop grand → audit incrémental presque aussi cher qu'un full. Mesurer empiriquement, viser ~10 k.
+
+## Voir aussi
+
+- [HASH_FORMAT_VERSIONING.md](HASH_FORMAT_VERSIONING.md) — l'audit doit utiliser le bon dériveur par version
+- [KEY_ROTATION.md](KEY_ROTATION.md) — les révocations changent la validité des quorums historiques
+- [SHARDING.md](../scale/SHARDING.md) — audit par shard, par maîtresse, puis cross-check
+- [COLD_ARCHIVE.md](../operations/COLD_ARCHIVE.md) — l'audit doit traverser les tranches archivées
+- [CHAOS_TESTING.md](../operations/CHAOS_TESTING.md) — l'invariant *« verify_integrity passe »* en property-based

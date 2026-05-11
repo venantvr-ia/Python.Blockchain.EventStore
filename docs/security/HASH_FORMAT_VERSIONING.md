@@ -83,3 +83,10 @@ flowchart TB
 - **Explosion combinatoire** : si tu accumules trop de versions, le code devient un musée. Règle pragmatique : retire les anciennes versions seulement quand aucune chaîne en production n'en contient (audit *one shot* qui re-signe l'historique vers la version la plus récente).
 - **Cascading hash** : `row_hash = SHA-256(content_hash || parents)` — si tu changes la dérivation des parents (par ex. nouvel ordre), c'est aussi un changement de format à versionner. Le `hash_format_version` couvre les deux.
 - **Inter-format chaining** : la tête v2 référence des `parent_hashes` calculés en v1. C'est OK car le `row_hash` du parent reste byte-identique — on ne le re-calcule jamais. Seule la *dérivation pour audit* dépend de la version.
+
+## Voir aussi
+
+- [EVENT_VERSIONING.md](../data/EVENT_VERSIONING.md) — versioning sémantique métier vs cryptographique
+- [INCREMENTAL_AUDIT.md](INCREMENTAL_AUDIT.md) — l'audit lit la version par ligne et appelle le bon dériveur
+- [CHAOS_TESTING.md](../operations/CHAOS_TESTING.md) — régression silencieuse classique, à fuzzer
+- [CLI.md](../operations/CLI.md) — `evstore inspect` doit décoder la bonne version

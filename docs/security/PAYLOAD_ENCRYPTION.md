@@ -87,3 +87,10 @@ def read_decrypted(self, ev: StoredEvent, kms):
 - **Rotation de KEK** : prévoir une procédure (ré-encryption des DEK avec la nouvelle KEK ; les ciphertexts ne changent pas → les hashs non plus → l'audit reste valide).
 - **Perte de KEK = perte de la donnée** — c'est par construction (et c'est ce qui rend le crypto-shredding possible). Sauvegardes de KEK obligatoires.
 - **Recherches** : on ne peut plus faire `WHERE payload LIKE '%alice%'`. Pour les recherches égalitaires, encryption déterministe sur les champs concernés ; pour les recherches plein texte, indexer dans un service séparé après déchiffrement applicatif.
+
+## Voir aussi
+
+- [GDPR_CRYPTO_SHREDDING.md](../data/GDPR_CRYPTO_SHREDDING.md) — usage canonique : effacer = détruire la KEK
+- [SECONDARY_INDEXES.md](../scale/SECONDARY_INDEXES.md) — les read models contournent l'encryption
+- [SNAPSHOTS.md](../data/SNAPSHOTS.md) — l'état projeté hérite des PII
+- [CLI.md](../operations/CLI.md) — commandes `decrypt` opérationnelles

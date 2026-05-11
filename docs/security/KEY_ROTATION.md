@@ -88,3 +88,10 @@ for ev in store.read_all():
 - **Race de révocation** : entre le moment où la clé fuite et l'événement `peer.revoked`, l'attaquant peut commiter avec sa clé. Mitigation : monitorer les émissions et alerter sur des patterns anormaux (cf. [docs/operations/OBSERVABILITY.md](../operations/OBSERVABILITY.md)).
 - **Rotation auto-signée** : `peer.rotated` est signé par l'ancienne clé — mais si la clé est déjà compromise, l'attaquant peut rotater vers sa propre clé. Pour une rotation post-compromis, **toujours combiner `peer.revoked` (clé compromise) + `peer.added` (nouvelle identité)** plutôt qu'une rotation.
 - **Re-key avant fuite** : la rotation préventive (par hygiène) ne protège **pas** contre une fuite de l'ancienne clé qui aurait commit dans le passé — l'attaquant garde le pouvoir de prouver des attestations historiques. Pour ça, voir `audit.checkpoint` ([INCREMENTAL_AUDIT.md](INCREMENTAL_AUDIT.md)) qui scelle l'état.
+
+## Voir aussi
+
+- [INCREMENTAL_AUDIT.md](INCREMENTAL_AUDIT.md) — les checkpoints scellent l'historique pré-fuite
+- [OBSERVABILITY.md](../operations/OBSERVABILITY.md) — détecter les patterns anormaux post-compromise
+- [CONSUMER_OFFSETS.md](../distribution/CONSUMER_OFFSETS.md) — les consommateurs doivent appliquer la même règle d'exclusion
+- [CHAOS_TESTING.md](../operations/CHAOS_TESTING.md) — tester l'interaction révocation + quorum

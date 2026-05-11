@@ -88,3 +88,10 @@ admin.prepare(
 - **Émetteurs partageant un peer_id** : si plusieurs services s'identifient comme `alice`, ils se partagent le bucket. Recommander un peer_id par instance (`alice@host01`).
 - **DoS au niveau prepare** : `prepare()` est cher (lecture de la tête). Un émetteur peut faire tomber le store en spammant `prepare` même si le commit échoue. Mitigation : cap aussi sur `prepare_event` côté store, ou rate limit en amont (reverse proxy).
 - **Coordination multi-process** : si plusieurs processus partagent le `.db`, leurs buckets en mémoire ne se voient pas. Solution simple : compteur en table dédiée mise à jour transactionnellement, plus lent mais correct.
+
+## Voir aussi
+
+- [SHARDING.md](SHARDING.md) — les buckets sont sharding-agnostiques
+- [OBSERVABILITY.md](../operations/OBSERVABILITY.md) — métriques de rate et alertes
+- [KEY_ROTATION.md](../security/KEY_ROTATION.md) — un abus persistant peut justifier une révocation
+- [CHAOS_TESTING.md](../operations/CHAOS_TESTING.md) — fuzzer les bursts et le timing

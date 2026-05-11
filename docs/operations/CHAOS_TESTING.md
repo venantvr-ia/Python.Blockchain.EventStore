@@ -113,3 +113,10 @@ def test_recovery_after_sigkill():
 - **Coût CI** : un property test peut prendre des minutes. Limiter la profondeur (`max_examples=200` en CI, `1000` en nightly).
 - **Couverture cryptographique** : Hypothesis ne génère pas de signatures cryptographiquement valides. Les attaques sur le crypto restent à tester explicitement (cf. tests existants).
 - **Détermination des invariants** : un invariant trop strict produit du bruit, trop laxe rate des bugs. Démarrer avec ceux du tableau ci-dessus, étendre à mesure que des bugs sont découverts.
+
+## Voir aussi
+
+- [INCREMENTAL_AUDIT.md](../security/INCREMENTAL_AUDIT.md) — invariant majeur testé
+- [HASH_FORMAT_VERSIONING.md](../security/HASH_FORMAT_VERSIONING.md) — régression silencieuse à fuzzer
+- [KEY_ROTATION.md](../security/KEY_ROTATION.md) — tester l'interaction révocation + quorum
+- [FORKS.md](../distribution/FORKS.md) — chaos sur les partitions réseau
